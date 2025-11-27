@@ -819,12 +819,12 @@
 
                 this.state.msgCache = `
 MISSION: ${name.toUpperCase()}
-<----#---->
+>>---#--->>
 TARGET: ${this.state.target.toUpperCase()}
 SYNC TIME: ${sTime}
-<----#---->
+>>---#--->>
 ${protocolText}
-> END TRANSMISSION <`.trim();
+-END TRANSMISSION-`.trim();
             },
 
             /*
@@ -891,4 +891,5 @@ ${protocolText}
         window.onload = () => app.init();
     </script>
 </body>
+
 </html>
