@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    
+    <!-- PWA and Mobile Configuration -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="A.N.D.Y.">
+    <meta name="theme-color" content="#050505">
+    
+    <title>A.N.D.Y. PROTO</title>
+    
+    <!-- Embedded Resources (Icons & Manifest) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👁‍🗨</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%230a0e14%22/><text y=%22.9em%22 x=%2250%25%22 text-anchor=%22middle%22 font-size=%2280%22>👁‍🗨</text></svg>">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"A.N.D.Y. PROTO","short_name":"A.N.D.Y.","start_url":".","display":"standalone","background_color":"#050505","theme_color":"#050505","orientation":"portrait","icons":[{"src":"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%22.9em%22%20font-size%3D%2290%22%3E%F0%9F%91%81%E2%80%8D%F0%9F%97%A8%3C%2Ftext%3E%3C%2Fsvg%3E","sizes":"192x192","type":"image/svg+xml"}]}'>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;500;600;700&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-outer: #050505;
+            --bg-device: #0a0e14;
+            --c-main: #00f3ff;
+            --c-sec: #7000ff;
+            --c-alert: #ff003c;
+            --c-warn: #fcee0a;
+            --c-dim: #475569;
+            --c-text: #e2e8f0;
+            --f-hud: 'Chakra Petch', sans-serif;
+            --f-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-outer);
+            color: var(--c-text);
+            font-family: var(--f-hud);
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.03) 0%, transparent 50%),
+                linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .02) 25%, rgba(255, 255, 255, .02) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .02) 75%, rgba(255, 255, 255, .02) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .02) 25%, rgba(255, 255, 255, .02) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .02) 75%, rgba(255, 255, 255, .02) 76%, transparent 77%, transparent);
+            background-size: 100% 100%, 60px 60px, 60px 60px;
+        }
+
+        /* 
+         * Input Normalization 
+         * Removes browser-specific styling for number and time inputs.
+         */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+        input[type="time"] {
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            appearance: none;
+            position: relative;
+            background: #050505;
+            border-radius: 0; 
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            display: flex; 
+        }
+        
+        /* 
+         * iOS WebKit Hack
+         * Forces the internal time value to fill the block, enabling text-align: center.
+         */
+        input[type="time"]::-webkit-date-and-time-value {
+            text-align: center;
+            display: block;        
+            width: 100%;           
+            margin: 0;             
+            line-height: normal;   
+        }
+
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        /* 
+         * Desktop Restoration
+         * Reverts to standard UI controls when a fine pointer (mouse) is detected.
+         */
+        @media (pointer: fine) {
+            input[type="time"] {
+                -webkit-appearance: auto;
+                appearance: auto;
+                display: block; 
+                position: static;
+                text-align: center;
+            }
+            input[type="time"]::-webkit-date-and-time-value {
+                width: auto; 
+                display: inline-block;
+            }
+            input[type="time"]::-webkit-calendar-picker-indicator {
+                position: static;
+                opacity: 1;
+                width: auto;
+                height: auto;
+                cursor: pointer;
+                filter: invert(1);
+                margin-left: 10px;
+            }
+        }
+
+        .tactical-device {
+            width: 100%; height: 100%;
+            max-width: 450px; 
+            max-height: 900px;
+            background-color: var(--bg-device);
+            position: relative;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px #333, 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        @media (min-width: 500px) {
+            .tactical-device {
+                border-radius: 12px;
+                height: 90vh;
+                border: 1px solid var(--c-dim);
+            }
+        }
+
+        .scanlines {
+            position: absolute; inset: 0; pointer-events: none; z-index: 2;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 3px;
+        }
+
+        .app-content {
+            flex: 1; overflow-y: auto; padding: 20px; 
+            padding-bottom: 100px;
+            position: relative; z-index: 5;
+            scrollbar-width: none;
+        }
+        .app-content::-webkit-scrollbar { display: none; }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding-bottom: 10px;
+            border-bottom: 2px solid var(--c-dim);
+        }
+
+        .brand {
+            font-family: var(--f-code); font-weight: 800; font-size: 1.2rem;
+            color: #fff; letter-spacing: -1px;
+        }
+        .brand span { color: var(--c-main); text-shadow: 0 0 15px var(--c-main); }
+        
+        .status-badge {
+            background: rgba(0, 243, 255, 0.05); 
+            border: 1px solid var(--c-dim);
+            color: var(--c-main); 
+            font-size: 0.6rem; 
+            padding: 4px 10px;
+            font-family: var(--f-code);
+            width: fit-content;
+            min-width: 0;
+            white-space: nowrap;
+            border-radius: 2px;
+            position: relative; overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        .status-badge::after {
+            content: '_'; 
+            animation: blink 1s step-end infinite; 
+            margin-left: 3px;
+            color: var(--c-dim);
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .panel {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--c-dim);
+            padding: 15px; margin-bottom: 15px;
+            position: relative;
+        }
+        .panel.accent-main { border-left: 3px solid var(--c-main); }
+        .panel.accent-alert { border-left: 3px solid var(--c-alert); }
+        .panel.accent-sec { border-left: 3px solid var(--c-sec); }
+        
+        .panel-label {
+            font-size: 0.7rem; color: var(--c-dim); letter-spacing: 1px;
+            margin-bottom: 8px; display: block; text-transform: uppercase;
+        }
+
+        .cyber-btn {
+            background: transparent; border: 1px solid var(--c-dim);
+            color: var(--c-dim); padding: 10px; font-family: var(--f-hud);
+            cursor: pointer; transition: 0.2s; flex: 1; font-size: 0.8rem;
+        }
+        
+        .cyber-btn:active, .cyber-btn.active {
+            background: var(--c-main); color: #000; border-color: var(--c-main);
+            box-shadow: 0 0 15px rgba(0,243,255,0.4);
+        }
+        
+        .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        .cyber-input {
+            width: 100%; background: #050505; border: 1px solid var(--c-dim);
+            color: #fff; padding: 12px; font-family: var(--f-code); font-size: 1.2rem;
+            text-align: center;
+            border-radius: 0; 
+        }
+        .cyber-input:focus { border-color: var(--c-main); }
+
+        .btn-transmit {
+            width: 100%; padding: 15px; margin-top: 10px;
+            background: var(--c-alert); border: none; color: #fff;
+            font-family: var(--f-hud); font-weight: 800; font-size: 1rem;
+            text-transform: uppercase; letter-spacing: 1px;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            cursor: pointer; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        
+        .btn-transmit:active { transform: scale(0.98); opacity: 0.9; }
+        
+        .btn-transmit::after {
+            content:''; position: absolute; top:0; left:-100%; width:50%; height:100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: scan 3s infinite;
+        }
+        
+        @keyframes scan { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+
+        .excuse-display {
+            min-height: 70px; background: #000; border: 1px dashed var(--c-dim);
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 10px; color: var(--c-main);
+            font-family: var(--f-code); font-size: 0.8rem; margin-bottom: 10px;
+        }
+
+        .stat-huge {
+            font-size: 4rem; font-weight: 700; color: #fff; line-height: 1;
+            text-shadow: 2px 2px 0 var(--c-dim);
+        }
+        .stat-sub { color: var(--c-main); font-size: 0.9rem; font-weight: bold; }
+
+        .nav-dock {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: #080808; border-top: 1px solid var(--c-dim);
+            display: flex; z-index: 10;
+            padding-bottom: env(safe-area-inset-bottom);
+            min-height: 70px;
+            height: auto;
+        }
+        
+        .nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--c-dim); font-size: 0.7rem; font-weight: bold; cursor: pointer;
+            transition: 0.3s;
+            padding: 10px 0;
+        }
+        
+        .nav-icon { font-size: 1.4rem; margin-bottom: 4px; }
+        .nav-item.active { color: var(--c-main); background: rgba(0,243,255,0.05); }
+
+        .toast-overlay {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(0, 0, 0, 0.95); border: 1px solid var(--c-main);
+            color: var(--c-main); padding: 20px 30px; z-index: 100;
+            text-align: center; opacity: 0; pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 50px rgba(0,243,255,0.2);
+            min-width: 250px;
+        }
+        
+        .toast-overlay.active { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="tactical-device">
+        <div class="scanlines"></div>
+        
+        <div id="status-toast" class="toast-overlay">
+            <div style="font-size:2rem; margin-bottom:5px;">✅</div>
+            <div id="toast-title" style="font-size:1rem; font-weight:bold;">NOTIFICATION</div>
+            <div id="toast-desc" style="font-size:0.6rem; color:#888; margin-top:5px;">SYSTEM UPDATE</div>
+        </div>
+
+        <div class="app-content">
+            <header>
+                <div class="brand">A.N.D.Y. <span>PROTO</span></div>
+                <div class="status-badge" id="sys-status">INITIALIZING...</div>
+            </header>
+
+            <div id="view-calc">
+                <div class="panel accent-main">
+                    <span class="panel-label">DECLARED TIMEFRAME (MIN)</span>
+                    <div style="display:flex; gap:5px; margin-bottom:10px;">
+                        <button class="cyber-btn" onclick="app.adjust(-10)">-10</button>
+                        <button class="cyber-btn" onclick="app.adjust(-5)">-5</button>
+                        <button class="cyber-btn" onclick="app.adjust(5)">+5</button>
+                        <button class="cyber-btn" onclick="app.adjust(10)">+10</button>
+                    </div>
+                    <input type="number" id="inp-min" class="cyber-input" value="15" oninput="app.update()">
+                </div>
+
+                <div class="panel">
+                    <span class="panel-label">ENVIRONMENTAL VARIABLES</span>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                        <button class="cyber-btn" onclick="app.toggleFactor(this, 0.2)">🌧️ RAIN</button>
+                        <button class="cyber-btn" onclick="app.toggleFactor(this, 0.25)">🤬 TRAFFIC</button>
+                        <button class="cyber-btn" onclick="app.toggleFactor(this, 0.5)">🎮 GAMING</button>
+                        <button class="cyber-btn" onclick="app.toggleFactor(this, 0.3)">🛌 SLEEPY</button>
+                        <button class="cyber-btn" onclick="app.toggleRandom(this, 'cauldron')">🍲 CAULDRON</button>
+                        <button class="cyber-btn" onclick="app.toggleRandom(this, 'toilet')">🚽 TOILET</button>
+                        <button class="cyber-btn" onclick="app.toggleRandom(this, 'cigarette')">🚬 CIGARETTE</button>
+                        <button class="cyber-btn" onclick="app.toggleRandom(this, 'motorcycle')">🏍️ MOTORCYCLE</button>
+                    </div>
+                </div>
+
+                <div style="text-align:center; margin-top:30px;">
+                    <div class="stat-huge" id="res-min">--</div>
+                    <div class="stat-sub">REALITY MINUTES</div>
+                    <div style="margin-top:10px; color:var(--c-dim); font-size:0.8rem;">
+                        ETA: <span id="res-eta" style="color:#fff;">--:--</span> | TDF: <span id="res-tdf" style="color:var(--c-main)">1.5</span>x
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-lure" class="hidden">
+                <div class="panel accent-alert">
+                    <span class="panel-label">MISSION PARAMETERS</span>
+                    <label class="panel-label" style="margin-top:10px; color:#fff;">OPERATION NAME</label>
+                    <input type="text" id="lure-name" class="cyber-input" value="WE'RE TAKING LOS SANTOS" style="text-align:left; font-size:1rem;" oninput="app.updateLure()">
+                    
+                    <label class="panel-label" style="margin-top:15px; color:#fff;">TARGET ARRIVAL (TRUE TIME)</label>
+                    <input type="time" id="lure-time" class="cyber-input" value="20:00" oninput="app.updateLure()">
+                </div>
+
+                <div class="panel">
+                    <span class="panel-label">GENERATED SYNC DATA</span>
+                    <div style="text-align:center; padding:10px;">
+                        <div style="font-size:0.8rem; color:var(--c-dim);">SEND THIS TIME TO TARGET</div>
+                        <div class="stat-huge" style="font-size:3rem; color:var(--c-alert);" id="lure-synth">--:--</div>
+                        <div style="font-size:0.7rem; color:var(--c-alert); font-weight:bold;">BUFFER ZONE ACTIVE</div>
+                    </div>
+                </div>
+
+                <button class="btn-transmit" onclick="app.smartTransmit()">
+                    <span id="transmit-label">TRANSMIT ORDER</span>
+                </button>
+                <div style="text-align:center; font-size:0.6rem; color:var(--c-dim); margin-top:10px;" id="transmit-hint">
+                    UPLINK STATUS: READY
+                </div>
+            </div>
+            
+            <div id="view-system" class="hidden">
+                 <div class="panel accent-main">
+                    <span class="panel-label">BASE CALIBRATION</span>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                        <span style="font-size:0.7rem; color:var(--c-dim);">TDF MULTIPLIER</span>
+                        <span style="font-weight:bold; color:var(--c-main);" id="conf-val">1.5x</span>
+                    </div>
+                    <input type="range" min="1.0" max="10.0" step="0.1" value="1.5" style="width:100%;" oninput="app.setBase(this.value)">
+                    <div style="font-size:0.6rem; color:var(--c-dim); margin-top:5px; text-align:right;">
+                        WARNING: VALUES > 5.0 MAY CAUSE TEMPORAL RIFT
+                    </div>
+                 </div>
+
+                 <div class="panel accent-sec">
+                    <span class="panel-label">COMMUNICATIONS PROTOCOL</span>
+                    
+                    <label class="panel-label" style="color:#fff; margin-top:10px;">TARGET DESIGNATION</label>
+                    <div class="opt-grid">
+                        <button class="cyber-btn active" onclick="app.setTarget(this, 'PLATOON')">PLATOON</button>
+                        <button class="cyber-btn" onclick="app.setTarget(this, 'THE BOYS')">THE BOYS</button>
+                        <button class="cyber-btn" onclick="app.setTarget(this, 'FAMILY')">FAMILY</button>
+                        <button class="cyber-btn" onclick="app.setTarget(this, 'CIVILIAN')">CIVILIAN</button>
+                    </div>
+
+                    <label class="panel-label" style="color:#fff; margin-top:15px;">ENCRYPTION TONE</label>
+                    <div class="opt-grid">
+                        <button class="cyber-btn active" onclick="app.setTone(this, 'STANDARD')">STANDARD</button>
+                        <button class="cyber-btn" onclick="app.setTone(this, 'AGGRO')">AGGRO</button>
+                        <button class="cyber-btn" onclick="app.setTone(this, 'PASSIVE')">PASSIVE</button>
+                        <button class="cyber-btn" onclick="app.setTone(this, 'CRYPTIC')">CRYPTIC</button>
+                    </div>
+                 </div>
+
+                 <div class="panel">
+                    <span class="panel-label">EXCUSE PREDICTOR</span>
+                    <div class="excuse-display" id="excuse-box">
+                        // WAITING FOR INPUT...
+                    </div>
+                    <button class="cyber-btn" onclick="app.runSimulation()" style="width:100%;">
+                        RUN SIMULATION
+                    </button>
+                 </div>
+
+                 <div style="text-align:right; padding-top:10px;">
+                     <button class="cyber-btn" onclick="app.toggleHaptic()" style="max-width:80px; font-size:0.6rem; border:none; color:var(--c-dim);">
+                        HAPTIC: ON
+                     </button>
+                 </div>
+            </div>
+        </div>
+
+        <nav class="nav-dock">
+            <div class="nav-item active" onclick="app.nav('calc', this)">
+                <div class="nav-icon">∯</div>
+                <div>ANALYZER</div>
+            </div>
+            <div class="nav-item" onclick="app.nav('lure', this)">
+                <div class="nav-icon">☢</div>
+                <div>TACTICAL</div>
+            </div>
+            <div class="nav-item" onclick="app.nav('system', this)">
+                <div class="nav-icon">≡</div>
+                <div>SYSTEM</div>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        const app = {
+            state: {
+                baseTdf: 1.5,
+                addTdf: 0,
+                min: 15,
+                msgCache: "",
+                haptic: true,
+                target: "PLATOON",
+                tone: "STANDARD",
+                rngValues: { cauldron: 0, toilet: 0, cigarette: 0, motorcycle: 0 }
+            },
+            
+            excuses: [
+                "Zaspałem, budzik nie zadzwonił.",
+                "Musiałem nakarmić rybki sąsiada.",
+                "Korki są straszne, stoję w miejscu!",
+                "Szukam drugiej skarpetki.",
+                "Jeszcze tylko jedna runda...",
+                "Tramwaj mi uciekł, czekam na następny.",
+                "Kot zablokował drzwi wyjściowe.",
+                "Piorę spodnie, zaraz wyschną.",
+                "Wychodzę za 5 minut (napisał 40 min temu).",
+                "Jestem już w drodze! (zakłada buty)",
+                "Musiałem odśnieżyć samochód… w październiku.",
+                "Google Maps mówi, że dojdę za 10 min. Oby tym razem miało rację.",
+                "Zamknąłem drzwi i przypomniałem sobie, że kluczyki są w środku.",
+                "Musiałem wrócić, bo zostawiłem czajnik włączony.",
+                "Przysiągłbym, że to była sobota.",
+                "Pies nie chciał wypuścić mnie z domu bez spaceru.",
+                "Moje włosy dziś zawiązały pakt z grawitacją.",
+                "Autobus przyjechał wcześniej. Serio.",
+                "W ogóle nie wiem, jak to się stało… po prostu minęło 20 minut.",
+                "Telefon się zawiesił, więc nie wiedziałem, która jest godzina.",
+                "Musiałem znaleźć ładowarkę, bo bez niej nie mogę żyć.",
+                "Zniknęła mi kurtka. Po prostu wyparowała!",
+                "But się zbuntował i sznurówka pękła.",
+                "Zgubiłem poczucie czasu. Znowu.",
+                "Myślałem, że mam jeszcze godzinę.",
+                "GPS zaprowadził mnie w zupełnie inne miejsce.",
+                "Nie mogłem wyjść, bo kot siedział na moich spodniach.",
+                "Zatrzymał mnie bardzo ważny telefon… z banku. Albo z kurierem. Nie wiem.",
+                "Musiałem zrobić kawę, bo bez niej jestem półprzytomny.",
+                "Zatrzymał mnie sąsiad z historią życia.",
+                "Drzwi się zacięły. Serio, walczyłem z nimi.",
+                "Wyszło słońce i się zapatrzyłem.",
+                "Przyszedł mi świetny pomysł i… zapomniałem o czasie.",
+                "Ubranie, które chciałem założyć, postanowiło się ukryć.",
+                "Przysięgam, że wychodziłem na czas… tylko czas wyszedł beze mnie.",
+                "Musiałem wrócić, bo zapomniałem wyłączyć światła w łazience.",
+                "Nie mogłem znaleźć kluczy, a były w kieszeni.",
+                "Miałem już wychodzić, ale przypomniałem sobie o praniu.",
+                "Zapomniałem, że to dziś… znaczy, wiedziałem, ale nie aż tak.",
+                "Kawa mi się rozlała na spodnie. Awaryjne przebranie było konieczne.",
+                "Zegarek mi się cofnął. O piętnaście minut. Sam.",
+                "Czekałem aż aplikacja z pogodą się załaduje.",
+                "Chciałem wyjść wcześniej, ale życie miało inne plany.",
+                "Zasnąłem na siedząco. Na chwilę. Podobno.",
+                "Winda utknęła… w sensie nie chciała przyjechać.",
+                "Zapomniałem, że dziś są roboty drogowe.",
+                "Znowu pomyliłem ulicę. Ja i mapy to nie jest dobre połączenie.",
+                "Musiałem się upewnić, czy wyłączyłem żelazko. Trzy razy.",
+                "Moje buty odmówiły współpracy i trzeba było zmienić plan.",
+                "Rozładował mi się telefon przed samym wyjściem.",
+                "Nie mogłem znaleźć portfela, a był w kurtce, której nie miałem zamiaru zakładać.",
+                "Kolega napisał ‘pilne’ i musiałem odpisać. A potem jakoś tak poszło.",
+                "Mój kot zdecydował, że to dobry moment na przytulanie.",
+                "Czekałem aż mój mózg się uruchomi. Niestety, wolny start.",
+                "Złapał mnie nagły atak ‘muszę posprzątać natychmiast’.",
+                "Znalazłem mema i… czas się zresetował.",
+                "Zapomniałem zegarka i musiałem wrócić. Dwa razy.",
+                "Mój plecak postanowił ukryć rzeczy, których potrzebowałem.",
+                "Zostałem zatrzymany przez losową egzystencjalną refleksję.",
+                "Patrzyłem przez okno i straciłem poczucie czasu.",
+                "Stwierdziłem, że zdążę zrobić śniadanie. Spoiler: nie zdążyłem.",
+                "Próbowałem szybko ogarnąć włosy. Kluczowe słowo: próbowałem.",
+                "Zablokowałem się w kurtce. To dłuższa historia.",
+                "Kupiłem bilet na zły tramwaj. Nie pytaj.",
+                "Musiałem odczekać, bo pies sąsiada na mnie szczekał.",
+                "Zgubiłem słuchawki. A bez muzyki nie da się iść.",
+                "Przypomniałem sobie o istnieniu obowiązków dopiero jak spojrzałem na kalendarz.",
+                "Musiałem naładować powerbank, bo inaczej bym nie przeżył.",
+                "Wyszedłem, wróciłem, wyszedłem i… znowu wróciłem.",
+                "Wpadłem w pętlę ‘jeszcze chwilkę’.",
+                "Autobus był przed czasem. Tak się nie robi ludziom.",
+                "Zgubiłem poczucie kierunku. W mieszkaniu.",
+                "Chciałem zrobić szybkie zakupy. Szybkie były tylko w teorii.",
+                "Musiałem przewinąć wszystkie powiadomienia. Bez tego się nie da.",
+                "Zasłuchałem się w podcast i nie zauważyłem, kiedy minęła godzina.",
+                "Musiałem odnaleźć ostatnią czystą skarpetkę. Bitwa była zaciekła.",
+                "Próbowałem szybko ogarnąć pokój… i utknąłem pod stertą ubrań.",
+                "Wyszedłem, ale wróciłem, bo zapomniałem zamknąć okno.",
+                "Mój zegarek żyje własnym życiem i nie zgadza się z rzeczywistością.",
+                "Przysnąłem podczas wiązania butów.",
+                "Miałem awarię krzesła — nie chciało mnie wypuścić.",
+                "Siadłem na chwilę, żeby zawiązać buta. Zbyt wygodnie było, żeby wstać.",
+                "Mój kot położył się na mojej kurtce i wyglądał zbyt słodko, żeby go ruszyć.",
+                "Nałożyłem krem na twarz i musiałem poczekać aż wyschnie. A potem zapomniałem po co stoję.",
+                "Zapomniałem spacji w Google Maps i wysłało mnie w pola.",
+                "Mój telefon stwierdził, że jest 3 w nocy. Nie kłócę się z technologią.",
+                "Musiałem upewnić się, że okna są zamknięte. Wszystkie. Po dwa razy.",
+                "Pokłóciłem się z parasolem. Wygrał.",
+                "Przeszedłem w tryb samolotowy. Psychicznie.",
+                "Musiałem odpisać na jedną wiadomość. Potem przyszły trzy kolejne…",
+                "Moja kawa domagała się szacunku i musiałem ją wypić do końca.",
+                "Uwikłałem się w szalik jak w escape roomie.",
+                "Przypadkowo włączyłem serial. Tylko na minutę… podobno.",
+                "Przeszedłem w tryb offline. Dosłownie — brak zasięgu w mieszkaniu.",
+                "Zapomniałem, że dziś to dziś.",
+                "Przytrzymałem drzwi staruszce… a potem jeszcze jednej… i jeszcze jednej.",
+                "Musiałem zatrzymać się, bo nagle przypomniałem sobie wszystkie błędy z 2013 roku.",
+                "Telefon zaczął aktualizację w najgorszym momencie.",
+                "Musiałem sprawdzić prognozę pogody na wszystkie możliwe miasta.",
+                "Wpadłem w rozmowę z kurierem o życiu.",
+                "Zamarzły mi uszy i musiałem odmrozić myśli.",
+                "Przez pomyłkę wyszedłem bez kluczy i musiałem wrócić po zapasowe do piwnicy.",
+                "W mieszkaniu była dziura czasowa. Inaczej tego nie wytłumaczę.",
+                "Musiałem ogarnąć włosy, bo wyglądałem jak postać z anime — ale nie tej fajnej strony.",
+                "Zgubiłem torbę. Znaleziona 30 cm dalej.",
+                "Zatrzymał mnie w kuchni ostatni kawałek ciasta.",
+                "Nie mogłem wyjść, bo Siri zaczęła gadać sama z siebie i się przestraszyłem.",
+                "Zaciąłem się w kurtce i potrzebowałem negocjacji pokojowych, żeby się uwolnić.",
+                "Musiałem wyłączyć pralkę przed czasem, bo zaczęła tańczyć po łazience.",
+                "Mój kot usiadł na moim bucie i udawał, że mnie nie zna.",
+                "Musiałem na chwilę usiąść, a ‘chwila’ zmieniła definicję.",
+                "Otworzyłem lodówkę i… zapomniałem po co.",
+                "Próbowałem zrobić szybkie śniadanie. Szybkie nie wyszło.",
+                "Schody postanowiły dziś być bardziej strome.",
+                "Musiałem wyjść po śmieci i prawie wyszedłem bez spodni.",
+                "Zostałem wciągnięty w krótką drzemkę — taką pięcio-, dziesięcio-, czterdziestominutową.",
+                "Zgubiłem jedną rękawiczkę, a bez kompletu się nie wychodzi.",
+                "W mieszkaniu była walka o temperaturę i musiałem mediować między kaloryferem a oknem.",
+                "Musiałem odczekać, aż mój mózg dogoni ciało.",
+                "Zatrzymał mnie rachunek, który znalazłem pod drzwiami. Musiałem go opłakać.",
+                "Zamyśliłem się patrząc, jak wiatr rusza firanką.",
+                "Musiałem sprawdzić trzy razy, czy mam wszystko… a i tak zapomniałem portfela.",
+                "Przypadkowo uruchomiłem tryb sprzątania w odkurzaczu i musiałem go dogonić.",
+                "Zobaczyłem siebie w lustrze i musiałem przemyśleć kilka życiowych decyzji.",
+                "Musiałem przewinąć TikToka do samego końca. Nie udało się.",
+                "Otworzyłem szufladę i pochłonął mnie chaos przedmiotów.",
+                "Zatrzymał mnie plik aktualizacji systemu. Mojego mózgu.",
+                "Zgubiłem dokumenty w domu. Odnalazły się w ręce.",
+                "Mój zamek w drzwiach postanowił postawić opór.",
+                "Musiałem obejrzeć prognozę pogody w trzech aplikacjach, bo każda pokazuje co innego.",
+                "Byłem przekonany, że zdążę… do momentu, aż spojrzałem na zegarek.",
+                "Natknąłem się na lustro i utknąłem analizując, czy to koszula czy ja mam problem.",
+                "Synchronicznie rozładowały mi się telefon i powerbank. To musiał być spisek.",
+                "Musiałem jeszcze szybko sprawdzić, czy pranie wyschło — chociaż wiedziałem, że nie.",
+                "Zgubiłem myśl i musiałem ją odnaleźć zanim wyszedłem.",
+                "Wyszedłem, ale wróciłem, bo zapomniałem zamknąć aplikacje w telefonie. Też trzeba o nie dbać.",
+                "Zasiedziałem się w łazience. Czas płynie tam inaczej.",
+                "Musiałem przegonić pająka, który przejął korytarz.",
+                "Przekonałem sam siebie, że mam więcej czasu. Sam siebie oszukałem."
+            ],
+
+            init() {
+                this.detectPlatform();
+                this.update();
+                this.updateLure();
+                this.startStatusCycle();
+            },
+
+            /*
+             * Platform Detection
+             * Adapts UI labels and sharing behavior based on the operating system.
+             */
+            detectPlatform() {
+                const ua = navigator.userAgent || navigator.vendor || window.opera;
+                this.isStrictMobile = /android|iPad|iPhone|iPod/i.test(ua);
+                
+                const btnLabel = document.getElementById('transmit-label');
+                const hint = document.getElementById('transmit-hint');
+                
+                if (btnLabel && hint) {
+                    if (this.isStrictMobile) {
+                        btnLabel.innerText = "TRANSMIT ORDER";
+                        hint.innerText = "OPENS COMMUNICATOR APP";
+                    } else {
+                        btnLabel.innerText = "COPY ORDER";
+                        hint.innerText = "SECURE CLIPBOARD MODE";
+                    }
+                }
+            },
+
+            startStatusCycle() {
+                const statusEl = document.getElementById('sys-status');
+                
+                const mobileStatus = [
+                    "GPS : LOCKED",
+                    "UPLINK : SECURE",
+                    "SIGNAL : 98%",
+                    "PWR : OPTIMAL",
+                    "SYNC : PENDING"
+                ];
+                const desktopStatus = [
+                    "NET : ENCRYPTED",
+                    "RAM : FLUSHED",
+                    "CORE : STABLE",
+                    "PROTOCOL : V2",
+                    "FIREWALL : ON"
+                ];
+                
+                const messages = this.isStrictMobile ? mobileStatus : desktopStatus;
+                let i = 0;
+                
+                statusEl.innerText = messages[0];
+                
+                setInterval(() => {
+                    i = (i + 1) % messages.length;
+                    statusEl.innerText = messages[i];
+                }, 3500);
+            },
+
+            nav(view, btn) {
+                document.querySelectorAll('.app-content > div[id^="view-"]').forEach(d => d.classList.add('hidden'));
+                document.getElementById('view-' + view).classList.remove('hidden');
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                btn.classList.add('active');
+                this.vibrate(10);
+            },
+
+            /*
+             * Calculation Logic
+             * Adjusts user input time and handles toggling of standard factors.
+             */
+            adjust(val) {
+                const el = document.getElementById('inp-min');
+                let v = parseInt(el.value) || 0;
+                el.value = Math.max(0, v + val);
+                this.update();
+            },
+
+            toggleFactor(btn, val) {
+                if (btn.classList.contains('active')) {
+                    btn.classList.remove('active');
+                    this.state.addTdf -= val;
+                } else {
+                    btn.classList.add('active');
+                    this.state.addTdf += val;
+                }
+                this.vibrate(5);
+                this.update();
+            },
+            
+            /*
+             * Random Number Generation (RNG) Logic
+             * Applies unpredictable multipliers based on specific chaotic variables.
+             */
+            toggleRandom(btn, type) {
+                if (btn.classList.contains('active')) {
+                    this.state.addTdf -= this.state.rngValues[type];
+                    this.state.rngValues[type] = 0;
+                    btn.classList.remove('active');
+                    this.vibrate(5);
+                } else {
+                    let rnd = 0;
+                    let alertType = "";
+                    
+                    if (type === 'cauldron') {
+                        rnd = (Math.random() * (1.2 - 0.5) + 0.5);
+                        alertType = "CAULDRON";
+                    } else if (type === 'toilet') {
+                        rnd = (Math.random() * (1.2 - 0.5) + 0.5);
+                        alertType = "TOILET ALERT";
+                    } else if (type === 'cigarette') {
+                        rnd = (Math.random() * (0.4 - 0.1) + 0.1);
+                        alertType = "SMOKE BREAK";
+                    } else if (type === 'motorcycle') {
+                        rnd = (Math.random() * (8.4 - 1.5) + 1.5);
+                        alertType = "RIDER MODE";
+                    }
+                    
+                    this.state.rngValues[type] = rnd;
+                    this.state.addTdf += rnd;
+                    btn.classList.add('active');
+                    
+                    this.showToast(`RANDOM MULTIPLIER +${rnd.toFixed(1)}x`, alertType);
+                    this.vibrate([20, 30, 20]);
+                }
+                this.update();
+            },
+
+            /*
+             * Core Update Loop
+             * Recalculates the Estimated Time of Arrival (ETA) based on total TDF.
+             */
+            update() {
+                this.state.min = parseInt(document.getElementById('inp-min').value) || 0;
+                const totalTdf = this.state.baseTdf + this.state.addTdf;
+                const real = Math.round(this.state.min * totalTdf);
+                const now = new Date();
+                const arr = new Date(now.getTime() + real * 60000);
+                
+                document.getElementById('res-min').innerText = real;
+                document.getElementById('res-eta').innerText = 
+                    `${String(arr.getHours()).padStart(2, '0')}:${String(arr.getMinutes()).padStart(2, '0')}`;
+                document.getElementById('res-tdf').innerText = totalTdf.toFixed(1);
+            },
+
+            setBase(val) {
+                this.state.baseTdf = parseFloat(val);
+                document.getElementById('conf-val').innerText = this.state.baseTdf.toFixed(1) + 'x';
+                this.update();
+                this.updateLure();
+            },
+
+            /*
+             * Configuration Handlers
+             * Manages tactical settings like target audience and message tone.
+             */
+            setTarget(btn, val) {
+                btn.parentElement.querySelectorAll('.cyber-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.state.target = val;
+                this.vibrate(5);
+                this.updateLure();
+            },
+
+            setTone(btn, val) {
+                btn.parentElement.querySelectorAll('.cyber-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.state.tone = val;
+                this.vibrate(5);
+                this.updateLure();
+            },
+
+            /*
+             * Message Generation
+             * Constructs the final tactical order string based on all parameters.
+             */
+            updateLure() {
+                const name = document.getElementById('lure-name').value;
+                const timeStr = document.getElementById('lure-time').value;
+                if (!timeStr) return;
+
+                const [h, m] = timeStr.split(':').map(Number);
+                let target = new Date();
+                target.setHours(h, m, 0, 0);
+                if (target < new Date()) target.setDate(target.getDate() + 1);
+
+                const totalTdf = this.state.baseTdf + this.state.addTdf;
+                const buffer = Math.round(30 * (totalTdf - 0.5));
+                const synth = new Date(target.getTime() - buffer * 60000);
+                const sTime = `${String(synth.getHours()).padStart(2, '0')}:${String(synth.getMinutes()).padStart(2, '0')}`;
+                
+                document.getElementById('lure-synth').innerText = sTime;
+
+                let protocolText = "";
+                if (this.state.tone === 'STANDARD') {
+                    protocolText = "PROTOCOL: Chronal deviation expected.\nArrive at SYNC TIME to counter lag.\nCONFIRM RECEIPT.";
+                } else if (this.state.tone === 'AGGRO') {
+                    protocolText = "PROTOCOL: MOVE FAST. NO EXCUSES.\nFAILURE TO SYNC WILL RESULT IN SANCTIONS.\nACKNOWLEDGE IMMEDIATELY.";
+                } else if (this.state.tone === 'PASSIVE') {
+                    protocolText = "NOTE: Just a friendly reminder about physics.\nWe would love to see you at SYNC TIME.\nHope that is okay.";
+                } else if (this.state.tone === 'CRYPTIC') {
+                    protocolText = "THE OWL FLIES AT MIDNIGHT.\nTHE SYNC TIME IS ABSOLUTE.\nDO NOT FAIL THE TIMELINE.";
+                }
+
+                this.state.msgCache = `
+MISSION: ${name.toUpperCase()}
+<----#---->
+TARGET: ${this.state.target.toUpperCase()}
+SYNC TIME: ${sTime}
+<----#---->
+${protocolText}
+> END TRANSMISSION <`.trim();
+            },
+
+            /*
+             * Transmission Logic
+             * Handles sharing via the native OS sheet or fallback clipboard copy.
+             */
+            smartTransmit() {
+                const msg = this.state.msgCache;
+                this.vibrate(50);
+                if (!this.isStrictMobile) {
+                    this.copyToClipboard(msg);
+                } else {
+                    if (navigator.share) {
+                        navigator.share({ title: 'A.N.D.Y. ORDER', text: msg }).catch(e => console.log('Share dismissed'));
+                    } else {
+                        this.copyToClipboard(msg);
+                    }
+                }
+            },
+
+            copyToClipboard(text) {
+                navigator.clipboard.writeText(text)
+                    .then(() => this.showToast('ENCRYPTED & COPIED', 'CLIPBOARD SECURE'))
+                    .catch(e => alert("CLIPBOARD ERROR"));
+            },
+
+            showToast(title, desc) {
+                const t = document.getElementById('status-toast');
+                document.getElementById('toast-title').innerText = title;
+                document.getElementById('toast-desc').innerText = desc || "SYSTEM NOTIFICATION";
+                t.classList.add('active');
+                setTimeout(() => t.classList.remove('active'), 2500);
+            },
+
+            runSimulation() {
+                this.vibrate(20);
+                const el = document.getElementById('excuse-box');
+                el.innerText = "CALCULATING...";
+                el.style.color = "#fff";
+                let i = 0;
+                const inter = setInterval(() => {
+                    el.innerText = this.excuses[Math.floor(Math.random() * this.excuses.length)];
+                    i++;
+                    if (i > 8) {
+                        clearInterval(inter);
+                        el.style.color = "var(--c-main)";
+                        this.vibrate([30, 30]);
+                    }
+                }, 80);
+            },
+
+            toggleHaptic() {
+                this.state.haptic = !this.state.haptic;
+                const btn = document.querySelector('button[onclick="app.toggleHaptic()"]');
+                btn.innerText = "HAPTIC: " + (this.state.haptic ? "ON" : "OFF");
+                this.vibrate(50);
+            },
+
+            vibrate(pattern) {
+                if (this.state.haptic && navigator.vibrate) navigator.vibrate(pattern);
+            }
+        };
+
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
